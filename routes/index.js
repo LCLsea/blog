@@ -2,6 +2,20 @@ var crypto = require('crypto'),
     User = require('../models/user.js'),
     Post = require('../models/post.js');
 
+var multer  = require('multer')
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './public/uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname); //Appending .jpg
+    req.flash('success', '檔案上傳成功！貼圖輸入：![](/uploads/'+
+      file.originalname + ')');
+  }
+})
+
+var upload = multer({ storage: storage });
+
 module.exports = function(app) {
   /* GET home page. */
   app.get('/', function(req, res, next) {
@@ -134,8 +148,8 @@ module.exports = function(app) {
   });
 
   app.post('/upload', checkLogin);
-  app.post('/upload', function (req, res) {
-    req.flash('success', '檔案上傳成功！');
+  app.post('/upload', upload.single('imgfile'), function (req, res) {
+    //req.flash('success', '檔案上傳成功！貼圖輸入：![](/uploads/');
     res.redirect('/upload');
   });
 };
