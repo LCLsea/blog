@@ -81,7 +81,7 @@ module.exports = function(app) {
     User.get(req.body.name, function (err, user) {
       if (!user) {
         req.flash('error', '用戶不存在!');
-        redirect('/login');
+        return res.redirect('/login');
       }
       if (user.password != password) {
         req.flash('error', '密碼錯誤!');
@@ -121,6 +121,22 @@ module.exports = function(app) {
     req.session.user = null;
     req.flash('success', '登出成功!');
     res.redirect('/');
+  });
+
+  app.get('/upload', checkLogin);
+  app.get('/upload', function(req, res, next) {
+    res.render('upload', {
+      title: '檔案上傳',
+      user: req.session.user,
+      success: req.flash('success').toString(),
+      error: req.flash('error').toString()
+    });
+  });
+
+  app.post('/upload', checkLogin);
+  app.post('/upload', function (req, res) {
+    req.flash('success', '檔案上傳成功！');
+    res.redirect('/upload');
   });
 };
 

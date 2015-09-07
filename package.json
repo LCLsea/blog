@@ -17,6 +17,7 @@
     "markdown": "^0.5.0",
     "mongodb": "latest",
     "morgan": "~1.6.1",
+    "multer": "latest",
     "serve-favicon": "~2.3.0"
   }
 }

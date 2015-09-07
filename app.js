@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var session = require('express-session');
 var mongoStore = require('connect-mongo')(session);
 var flash = require('connect-flash');
+var multer = require('multer');
 
 var routes = require('./routes/index');
 var config = require('./config');
@@ -28,8 +29,11 @@ config.session.store = new mongoStore(config.mongo);
 app.use(session(config.session));
 app.use(flash());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(multer({dest:'./uploads/'}).single('singleInputFileName'));
+app.use(multer({dest:'./uploads/'}).array('multiInputFileName'));
 
 routes(app);
+
 
 
 // catch 404 and forward to error handler
