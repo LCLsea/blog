@@ -7,10 +7,12 @@
   </head>
 
   <body>
+  <div class="wrapper">
     <header>
       <h1><%= title %></h1>
     </header>
-    <nav>
+    <div class="container">
+     <nav>
       <span><a title="主頁" href="/">home</a></span>
       <% if (locals.user) { %>
       <span><a title="上傳" href="/upload">upload</a></span>
@@ -22,7 +24,7 @@
       <% } %>
     </nav>
 
-    <article>
+    <article class="content">
       <% if (locals.success) { %>
       <div><%= success %></div>
       <% } %>

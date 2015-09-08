@@ -8,7 +8,7 @@ var storage = multer.diskStorage({
     cb(null, './public/uploads/');
   },
   filename: function (req, file, cb) {
-    cb(null, file.originalname); //Appending .jpg
+    cb(null, file.originalname);
     req.flash('success', '檔案上傳成功！貼圖輸入：![](/uploads/'+
       file.originalname + ')');
   }
@@ -24,9 +24,9 @@ module.exports = function(app) {
         posts = [];
       }
       res.render('index', {
-        title: '主頁',
+        title: 'CAMLAB 測試用部落格',
         user: req.session.user,
-        post: posts,
+        posts: posts,
         success: req.flash('success').toString(),
         error: req.flash('error').toString()
       });
@@ -149,8 +149,96 @@ module.exports = function(app) {
 
   app.post('/upload', checkLogin);
   app.post('/upload', upload.single('imgfile'), function (req, res) {
-    //req.flash('success', '檔案上傳成功！貼圖輸入：![](/uploads/');
     res.redirect('/upload');
+  });
+
+  app.get('/u/:name', function (req, res) {
+    //檢查用戶是否存在
+    User.get(req.params.name, function (err, user) {
+      if(!user) {
+        req.flash('error', '用戶不存在！');
+        return res.redirect('/');
+      }
+      Post.getAll(user.name, function (err, posts) {
+        if (err) {
+          req.flash('error', err);
+          return res.redirect('/');
+        }
+        res.render('user', {
+          title: user.name + '的文章列表',
+          posts: posts,
+          user: req.session.user,
+          success: req.flash('success').toString(),
+          error: req.flash('error').toString()
+        });
+      });
+    });
+  });
+
+  app.get('/u/:name/:day/:title', function (req, res) {
+    Post.getOne(req.params.name, req.params.day, req.params.title, function (err,
+    post) {
+      if (err) {
+        req.flash('error', err);
+        return res.redirect('/');
+      }
+      res.render('article', {
+        title: req.params.title,
+        post: post,
+        user: req.session.user,
+        success: req.flash('success').toString(),
+        error: req.flash('error').toString()
+      });
+    });
+  });
+
+  app.get('/edit/:name/:day/:title', checkLogin);
+  app.get('/edit/:name/:day/:title', function (req, res) {
+    var currentUser = req.session.user;
+    Post.edit(currentUser.name, req.params.day, req.params.title, function (err,
+      post) {
+      if (err) {
+        req.flash('error', err);
+        return res.redirect('/');
+      }
+      res.render('edit', {
+        title: '編輯',
+        post: post,
+        user: req.session.user,
+        success: req.flash('success').toString(),
+        error: req.flash('error').toString()
+      });
+    });
+  });
+
+  app.post('/edit/:name/:day/:title', checkLogin);
+  app.post('/edit/:name/:day/:title', function (req, res) {
+    var currentUser = req.session.user;
+    Post.update(currentUser.name, req.params.day, req.params.title,
+      req.body.post, function (err) {
+        var url = encodeURI('/u/'+req.params.name+'/'+req.params.day+'/'+
+           req.params.title);
+        if (err) {
+          req.flash('error', err);
+          return res.redirect(url);  //錯誤！回傳文章頁面
+        }
+        req.flash('success', '修改成功！');
+        res.redirect(url);
+    });
+  });
+
+  app.get('/remove/:name/:day/:title', checkLogin);
+  app.get('/remove/:name/:day/:title', function (req, res) {
+    var currentUser = req.session.user;
+    Post.remove(currentUser.name, req.params.day, req.params.title,
+    function (err) {
+      if (err) {
+        req.flash('error', err);
+        return res.redirect('back');
+      }
+      req.flash('success', '已刪除！');
+      res.redirect('/');
+    });
   });
 };
 

@@ -3,8 +3,47 @@
   margin: 0;
 }
 
+.wrapper {
+	min-width: 200px;
+	max-width: 1000px;
+	margin: 0 auto;
+}
+
+.container {
+	width: 100%;
+	float: left;
+	overflow: hidden;
+}
+
+.content {
+	padding: 0 0 0 150px;
+}
+
+.essay {
+  background-color: #f2f2f2;
+  margin: 10px 0;
+  padding: 2px 5px;
+}
+
+.edit {
+  margin: 3px;
+  padding: 2px 5px;
+  border-radius: 3px;
+  background-color: #F3F3F3;
+  color: #333322;
+  font-size: 16px;
+}
+
+.edit:hover {
+  text-decoration: none;
+  background-color: #F00;
+  color: #FFFFFF;
+  -moz-transition: color .4s linear;
+  -webkit-transition: color .4s linear;
+}
+
 body {
-  width: 850px;
+
   margin: 2em auto;
   padding: 0 2em;
   font-size: 14px;
@@ -17,6 +56,9 @@ p {
 }
 
 header {
+  width: 850px;
+  margin: 0 0 0 150px ;
+  float: left;
   padding: 5px 0;
   border-bottom: 1px solid #CCCCCC;
 }
@@ -26,7 +68,6 @@ nav {
   font-family: "Microsoft JhengHei";
   font-size: 1.1em;
   text-transform: uppercase;
-  margin-left: -12em;
   width: 9em;
   text-align: right;
 }
@@ -59,7 +100,7 @@ nav a:hover {
   background-color: #FF0000;
   color: #F9F9F9;
   -moz-transition: color .4s linear;
-  -webkit-transition: color .4s linear
+  -webkit-transition: color .4s linear;
 }
 
 .info {
