@@ -27,7 +27,8 @@ Post.prototype.save = function(callback) {
     name: this.name,
     time: time,
     title: this.title,
-    post: this.post
+    post: this.post,
+    comments: []
   };
   // 打開資料庫
   mongodb.open(function (err, db) {
@@ -105,7 +106,12 @@ Post.getOne = function (name, day, title, callback) {
         if (err) {
           return callback(err);
         }
-        doc.post = markdown.toHTML(doc.post);
+        if (doc) {
+          doc.post = markdown.toHTML(doc.post);
+          doc.comments.forEach(function (comment) {
+            comment.content = markdown.toHTML(comment.content);
+          })
+        }
         callback(null, doc);
       });
     });
