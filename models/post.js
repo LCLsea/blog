@@ -54,7 +54,7 @@ Post.prototype.save = function(callback) {
   });
 };
 
-Post.getAll = function (name, callback) {
+Post.getTen = function (name, page, callback) {
   mongodb.open(function (err, db) {
     if (err) {
       return callback(err);
@@ -69,18 +69,23 @@ Post.getAll = function (name, callback) {
       query.name = name;
       }
       //根據 query 物件查詢文章
-      collection.find(query).sort({
-        time: -1
-      }).toArray(function (err, docs) {
-        mongodb.close();
-        if (err) {
-          return callback(err);
-        }
-        // 解析 markdown 為html
-        docs.forEach(function (doc) {
-          doc.post = markdown.toHTML(doc.post);
+      collection.count(query, function (err, total) {
+        collection.find(query, {
+          skip: (page-1)*10,
+          limit: 10
+        }).sort({
+          time: -1
+        }).toArray(function (err, docs) {
+          mongodb.close();
+          if (err) {
+            return callback(err);
+          }
+          // 解析 markdown 為html
+          docs.forEach(function (doc) {
+            doc.post = markdown.toHTML(doc.post);
+          });
+          callback(null, docs, total);  // 成功! 以陣列型式回傳查詢結果
         });
-        callback(null, docs);  // 成功! 以陣列型式回傳查詢結果
       });
     });
   });
