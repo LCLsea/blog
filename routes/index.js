@@ -128,7 +128,8 @@ module.exports = function(app) {
       return res.redirect('back');
     }
     var currentUser = req.session.user,
-        post = new Post(currentUser.name, req.body.title, req.body.post);
+        tags = [req.body.tag1, req.body.tag2, req.body.tag3],
+        post = new Post(currentUser.name, req.body.title, tags, req.body.post);
     post.save(function (err) {
       if (err) {
         req.flash('error', err);
