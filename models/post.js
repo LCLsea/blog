@@ -30,7 +30,8 @@ Post.prototype.save = function(callback) {
     title: this.title,
     tags: this.tags,
     post: this.post,
-    comments: []
+    comments: [],
+    pv: 0
   };
   // 打開資料庫
   mongodb.open(function (err, db) {
@@ -46,6 +47,7 @@ Post.prototype.save = function(callback) {
       collection.insert(post, {
         saft: true
       }, function (err) {
+        //注意最後一層的 mongodb.close()才可放在 if 之前
         mongodb.close();
         if (err) {
           return callback(err);
@@ -108,12 +110,25 @@ Post.getOne = function (name, day, title, callback) {
         "name": name,
         "time.day": day,
         "title": title
-      }, function (err,doc) {
-        mongodb.close();
+      }, function (err, doc) {
         if (err) {
+          mongodb.close();
           return callback(err);
         }
         if (doc) {
+          //每瀏覽 1 次，pv值增加 1
+          collection.update({
+            "name": name,
+            "time.day": day,
+            "title": title
+          }, {
+            $inc: {"pv": 1}
+          }, function (err) {
+            mongodb.close();
+            if (err) {
+              return callback(err);
+            }
+          });
           doc.post = markdown.toHTML(doc.post);
           doc.comments.forEach(function (comment) {
             comment.content = markdown.toHTML(comment.content);
@@ -199,6 +214,86 @@ Post.remove = function (name, day, title, callback) {
           return callback(err);
         }
         callback(null);
+      });
+    });
+  });
+};
+
+Post.getArchive = function (callback) {
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);
+    }
+    db.collection('posts', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);
+      }
+      //回傳只包含name, time, title屬性的文件陣列
+      collection.find({}, {
+        "name": 1,
+        "time": 1,
+        "title": 1
+      }).sort({
+        time: -1
+      }).toArray(function (err, docs) {
+        mongodb.close();
+        if (err) {
+          return callback(err);
+        }
+        callback(null, docs);
+      });
+    });
+  });
+};
+
+Post.getTags = function (callback) {
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);
+    }
+    db.collection('posts', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);
+      }
+      //distinct 用來找出指定鍵的所有不同值
+      collection.distinct('tags', function (err,docs) {
+        mongodb.close();
+        if (err) {
+          return callback(err);
+        }
+        callback(null, docs);
+      });
+    });
+  });
+};
+
+Post.getTag = function (tag, callback) {
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);
+    }
+    db.collection('posts', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);
+      }
+      //distinct 用來找出指定鍵的所有不同值
+      collection.find({
+        "tags": tag
+      }, {
+        "name": 1,
+        "time": 1,
+        "title": 1
+      }).sort({
+        time: -1
+      }).toArray(function (err, docs) {
+        mongodb.close();
+        if (err) {
+          return callback(err);
+        }
+        callback(null, docs);
       });
     });
   });

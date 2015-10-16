@@ -14,6 +14,7 @@
     <% }) %>
   </p>
   <p><%- post.post %></p>
+  <p class="info">閱讀： <%= post.pv %> | 評論： <%= post.comments.length %></p>
 </div>
 <% }) %>
 <% include paging %>
