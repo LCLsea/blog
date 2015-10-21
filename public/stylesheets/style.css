@@ -19,6 +19,19 @@
   margin-right: 1.2em;
 }
 
+.l_head {
+  float: left;
+  margin-left: -4em;
+  box-shadow: 0px 5px 4px #888;
+}
+
+.r_head {
+  float: right;
+  margin-top: -2.5em;
+  box-shadow: 0px 1px 4px #888;
+}
+
+
 .wrapper {
 	min-width: 200px;
 	max-width: 1000px;
@@ -81,8 +94,16 @@
   -webkit-transition: color .2s linear;
 }
 
+.search {
+  border: 0;
+  width: 6em;
+  text-align: center;
+  font-size: 1em;
+  margin: 0.5em 0;
+}
+
 .tag {
-  background-color: #FF0000;
+  background-color: #880000;
   border-radius: 3px;
   font-size: 14px;
   color: #FFFFFF;
@@ -98,11 +119,14 @@
 }
 
 body {
-
   margin: 2em auto;
   padding: 0 2em;
   font-size: 14px;
   font-family: "Microsoft JhengHei,serif,sans-serif,cursive,fantasy,monospace";
+  background-image: url(back.jpg);
+  background-repeat: no-repeat;
+  background-position: top;
+  background-size: cover;
 }
 
 p {

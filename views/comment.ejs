@@ -1,10 +1,13 @@
 <br />
 <% post.comments.forEach(function (comment, index) { %>
-<p><a href="<%= comment.website %>"><%= comment.name %></a>
+<div style="padding-left: 4em;">
+  <p><img src="<%= comment.head %>" class="l_head" />
+    <a href="<%= comment.website %>"><%= comment.name %></a>
   <span class="info"> 回覆於 <%=comment.time %></span></p>
-<p><%- comment.content %></p>
+  <p><%- comment.content %></p>
+</div>
 <% }) %>
-
+<br />
 <form method="post">
 <% if (user) { %>
   姓名：<input type="text" name="name" value="<%= user.name %>" /><br />

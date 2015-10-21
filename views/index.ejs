@@ -4,6 +4,8 @@
   <p><h2 style="border-bottom: 1px solid #CCCCCC;">
     <a href="/u/<%= post.name %>/<%= post.time.day %>/<%= post.title %>">
     <%= post.title %></a></h2></p>
+    <a href="/u/<%= post.name %>">
+      <img src="<%= post.head %>" class="r_head" /></a>
   <p class="info">
     作者：<a href="/u/<%= post.name %>"><%= post.name %></a> |
     日期：<%= post.time.minute %> |

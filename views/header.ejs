@@ -16,6 +16,7 @@
       <span><a title="主頁" href="/">home</a></span>
       <span><a title="存檔" href="/archive">archive</a></span>
       <span><a title="標籤" href="/tags">tags</a></span>
+      <span><a title="友善連結" href="/links">links</a></span>
       <% if (locals.user) { %>
       <span><a title="上傳" href="/upload">upload</a></span>
       <span><a title="發表" href="/post">post</a></span>
@@ -24,6 +25,8 @@
       <span><a title="登入" href="/login">login</a></span>
       <span><a title="註冊" href="/reg">register</a></span>
       <% } %>
+      <span><form action="/search" method="get"><input type="text" name="keyword"
+        placeholder="SEARCH" class="search" /></form></span>
     </nav>
 
     <article class="content">
