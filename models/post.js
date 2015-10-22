@@ -33,6 +33,7 @@ Post.prototype.save = function(callback) {
     tags: this.tags,
     post: this.post,
     comments: [],
+    reprint_info: {},
     pv: 0
   };
   // 打開資料庫
@@ -204,18 +205,56 @@ Post.remove = function (name, day, title, callback) {
         mongodb.close();
         return callback(err);
       }
-      collection.remove({
+      //查詢要刪除的文件
+      collection.findOne({
         "name": name,
         "time.day": day,
         "title": title
-      }, {
-        w: 1
-      }, function (err) {
-        mongodb.close();
+      }, function (err, doc) {
         if (err) {
+          mongodb.close();
           return callback(err);
         }
-        callback(null);
+        //如果有reprint_from，即該文章是轉載來的，先儲存 reprint_from
+        var reprint_from = "";
+        if (doc.reprint_info.reprint_from) {
+          reprint_from = doc.reprint_info.reprint_from;
+        }
+        if (reprint_from != "") {
+          //更新原始文章所在文件檔的 reprint_to
+          collection.update({
+            "name": reprint_from.name,
+            "time.day": reprint_form.day,
+            "title": reprint_from.title
+          }, {
+            $pull: {
+              "reprint_info.reprint_to": {
+                "name": name,
+                "time.day": day,
+                "title": title
+              }}
+          }, function(err) {
+            if (err) {
+              mongodb.close();
+              return callback(err);
+            }
+          });
+        }
+
+        //聞除轉載來的文章所在的文件檔
+        collection.remove({
+          "name": name,
+          "time.day": day,
+          "title": title
+        }, {
+          w: 1
+        }, function (err) {
+          mongodb.close();
+          if (err) {
+            return callback(err);
+          }
+          callback(null);
+        });
       });
     });
   });
@@ -326,6 +365,83 @@ Post.search = function(keyword, callback) {
           return callback(err);
         }
         callback(null, docs);
+      });
+    });
+  });
+};
+
+Post.reprint = function(reprint_from, reprint_to, callback) {
+  mongodb.open(function (err, db) {
+    if (err) {
+      return callback(err);
+    }
+    db.collection('posts', function (err, collection) {
+      if (err) {
+        mongodb.close();
+        return callback(err);
+      }
+      collection.findOne({
+        "name": reprint_from.name,
+        "time.day": reprint_from.day,
+        "title": reprint_from.title
+      }, function (err, doc) {
+        if (err) {
+          mondgodb.close();
+          return callback(err);
+        }
+
+        var date = new Date();
+        var time = {
+          date: date,
+          year: date.getFullYear(),
+          month: date.getFullYear() + "-" + (date.getMonth() + 1),
+          day: date.getFullYear() + "-" + (date.getMonth() + 1) + "-" +
+               date.getDate(),
+          minute: date.getFullYear() + "-" + (date.getMonth() + 1) + "-" +
+               date.getDate() + " " + date.getHours() + ':' +
+               (date.getMinutes() < 10 ? '0' +
+               date.getMinutes() : date.getMinutes())
+        }
+        delete doc._id; //要聞掉原來文章的 _id
+
+        doc.name = reprint_to.name;
+        doc.head = reprint_to.head;
+        doc.time = time;
+        doc.title = (doc.title.search(/[轉載 ]/) > -1) ? doc.title : "[ 轉載 ]" +
+                    doc.title;
+        doc.comments = [];
+        doc.reprint_info = {"reprint_from": reprint_from};
+        doc.pv = 0;
+
+        // 更新被轉載的原始文件檔中 reprint_info 內的 reprint_to
+        collection.update({
+          "name": reprint_from.name,
+          "time.day": reprint_from.day,
+          "title": reprint_from.title
+        }, {
+          $push: {
+            "reprint_info.reprint_to": {
+              "name": doc.name,
+              "day": time.day,
+              "title": doc.title
+          }}
+        }, function (err) {
+          if (err) {
+            mondgodb.close();
+            return callback(err);
+          }
+        });
+
+        //將轉載建立的副本修改後存入資料庫，並回傳儲存後的文件檔
+        collection.insert(doc, {
+          safe: true
+        }, function (err, post) {
+          mongodb.close();
+          if (err) {
+            return callback(err);
+          }
+          callback(err, post[0]);
+        });
       });
     });
   });
