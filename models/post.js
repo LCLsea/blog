@@ -398,7 +398,7 @@ Post.reprint = function(reprint_from, reprint_to, callback) {
           day: date.getFullYear() + "-" + (date.getMonth() + 1) + "-" +
                date.getDate(),
           minute: date.getFullYear() + "-" + (date.getMonth() + 1) + "-" +
-               date.getDate() + " " + date.getHours() + ':' +
+               date.getDate() + " " + date.getHours() + ":" +
                (date.getMinutes() < 10 ? '0' +
                date.getMinutes() : date.getMinutes())
         }
